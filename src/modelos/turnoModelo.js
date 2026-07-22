@@ -44,7 +44,29 @@ function obtenerTurnosPorFecha(fecha) {
   });
 }
 
+function obtenerTurnosPorRango(desde, hasta) {
+  return new Promise((resolver, rechazar) => {
+    const sql = `
+      SELECT t.id,
+             t.fecha,
+             t.hora_inicio,
+             t.hora_fin,
+             u.id     AS id_trabajador,
+             u.nombre AS nombre_trabajador
+      FROM turnos t
+      JOIN usuarios u ON u.id = t.id_trabajador
+      WHERE t.fecha BETWEEN ? AND ?
+      ORDER BY t.fecha, t.hora_inicio
+    `;
+    bd.all(sql, [desde, hasta], (error, filas) => {
+      if (error) return rechazar(error);
+      resolver(filas);
+    });
+  });
+}
+
 module.exports = {
   crearTurno,
   obtenerTurnosPorFecha,
+  obtenerTurnosPorRango,
 };
